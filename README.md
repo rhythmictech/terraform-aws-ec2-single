@@ -37,17 +37,18 @@ A bit about this module
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| ami\_id | ID of the AMI to use when creating this instance | `string` | n/a | yes |
+| ami\_id | ID of the AMI to use when creating this instance. | `string` | n/a | yes |
 | env | Name of the environment the Instance will be in. | `string` | n/a | yes |
 | instance\_type | AWS Instance type, i.e. t3.small. | `string` | n/a | yes |
-| name | Moniker to apply to all resources in the module | `string` | n/a | yes |
-| security\_groups | Security Group IDs to attach to the instance | `list(string)` | n/a | yes |
+| name | Moniker to apply to all resources in the module. | `string` | n/a | yes |
+| security\_groups | Security Group IDs to attach to the instance. | `list(string)` | n/a | yes |
 | subnet\_id | ID of the subnet in which to create the instance. | `string` | n/a | yes |
 | volume\_size | Size of the attached volume for this instance. | `number` | n/a | yes |
-| volume\_type | Type of storage for the instance attached volume | `string` | n/a | yes |
+| volume\_type | Type of storage for the instance attached volume. | `string` | n/a | yes |
 | vpc | VPC ID to create the instance in. | `string` | n/a | yes |
-| instance\_ip | Private IP to assign to the instance, if desired | `string` | `null` | no |
-| tags | User-Defined tags | `map(string)` | `{}` | no |
+| create | Whether or not this instance should be created. Unfortunately needed for TF < 0.13. | `bool` | `true` | no |
+| instance\_ip | Private IP to assign to the instance, if desired. | `string` | `null` | no |
+| tags | User-Defined tags. | `map(string)` | `{}` | no |
 | userdata\_script | Userdata script to execute when provisioning the instance. | `string` | `null` | no |
 
 ## Outputs

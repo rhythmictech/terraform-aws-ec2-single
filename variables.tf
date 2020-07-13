@@ -2,8 +2,14 @@
 # Variables
 ########################################
 variable "ami_id" {
-  description = "ID of the AMI to use when creating this instance"
+  description = "ID of the AMI to use when creating this instance."
   type        = string
+}
+
+variable "create" {
+  description = "Whether or not this instance should be created. Unfortunately needed for TF < 0.13."
+  type        = bool
+  default     = true
 }
 
 variable "env" {
@@ -12,7 +18,7 @@ variable "env" {
 }
 
 variable "instance_ip" {
-  description = "Private IP to assign to the instance, if desired"
+  description = "Private IP to assign to the instance, if desired."
   type        = string
   default     = null
 }
@@ -23,12 +29,12 @@ variable "instance_type" {
 }
 
 variable "name" {
-  description = "Moniker to apply to all resources in the module"
+  description = "Moniker to apply to all resources in the module."
   type        = string
 }
 
 variable "security_groups" {
-  description = "Security Group IDs to attach to the instance"
+  description = "Security Group IDs to attach to the instance."
   type        = list(string)
 }
 
@@ -39,7 +45,7 @@ variable "subnet_id" {
 
 variable "tags" {
   default     = {}
-  description = "User-Defined tags"
+  description = "User-Defined tags."
   type        = map(string)
 }
 
@@ -55,7 +61,7 @@ variable "volume_size" {
 }
 
 variable "volume_type" {
-  description = "Type of storage for the instance attached volume"
+  description = "Type of storage for the instance attached volume."
   type        = string
 }
 

@@ -3,6 +3,7 @@
 ########################################
 
 resource "aws_security_group" "instance" {
+  count       = var.create ? 1 : 0
   name_prefix = "${var.env}-${var.name}-"
   description = "Security group attached to the ${var.env}-${var.name} instance."
   vpc_id      = var.vpc
@@ -35,6 +36,7 @@ data "aws_iam_policy_document" "instance_sts_assume_role" {
 }
 
 resource "aws_iam_role" "instance" {
+  count              = var.create ? 1 : 0
   name_prefix        = "${var.name}-role-"
   assume_role_policy = data.aws_iam_policy_document.instance_sts_assume_role.json
 
@@ -63,15 +65,16 @@ data "aws_iam_policy_document" "instance_tags" {
 }
 
 resource "aws_iam_role_policy" "instance" {
+  count       = var.create ? 1 : 0
   name_prefix = "${var.name}-"
-  role        = aws_iam_role.instance.id
-  policy      = data.aws_iam_policy_document.instance_tags.json
+  role        = aws_iam_role.instance[0].id
+  policy      = data.aws_iam_policy_document.instance_tags[0].json
 }
 
 resource "aws_iam_instance_profile" "instance" {
-
+  count       = var.create ? 1 : 0
   name_prefix = "${var.name}-"
-  role        = aws_iam_role.instance.name
+  role        = aws_iam_role.instance[0].name
 }
 
 ########################################
@@ -79,16 +82,19 @@ resource "aws_iam_instance_profile" "instance" {
 ########################################
 
 resource "tls_private_key" "instance_root" {
+  count     = var.create ? 1 : 0
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 resource "aws_key_pair" "instance_root" {
+  count           = var.create ? 1 : 0
   key_name_prefix = "${var.name}-root-"
-  public_key      = tls_private_key.instance_root.public_key_openssh
+  public_key      = tls_private_key.instance_root[0].public_key_openssh
 }
 
 resource "aws_secretsmanager_secret" "instance_root_key" {
+  count       = var.create ? 1 : 0
   name_prefix = "${var.name}-root-key-"
   description = "ssh key for ec2-user user on ${var.name} server"
 
@@ -101,22 +107,24 @@ resource "aws_secretsmanager_secret" "instance_root_key" {
 }
 
 resource "aws_secretsmanager_secret_version" "instance_root_key_value" {
-  secret_id     = aws_secretsmanager_secret.instance_root_key.id
-  secret_string = tls_private_key.instance_root.private_key_pem
+  count         = var.create ? 1 : 0
+  secret_id     = aws_secretsmanager_secret.instance_root_key[0].id
+  secret_string = tls_private_key.instance_root[0].private_key_pem
 }
 ########################################
 # Instance Definition
 ########################################
 resource "aws_instance" "instance" {
+  count                  = var.create ? 1 : 0
   ami                    = var.ami_id
-  iam_instance_profile   = aws_iam_instance_profile.instance.id
+  iam_instance_profile   = aws_iam_instance_profile.instance[0].id
   instance_type          = var.instance_type
-  key_name               = aws_key_pair.instance_root.key_name
+  key_name               = aws_key_pair.instance_root[0].key_name
   monitoring             = true
   private_ip             = var.instance_ip != null ? var.instance_ip : null
   subnet_id              = var.subnet_id
   user_data              = var.userdata_script
-  vpc_security_group_ids = concat([aws_security_group.instance.id], var.security_groups)
+  vpc_security_group_ids = concat([aws_security_group.instance[0].id], var.security_groups)
 
   root_block_device {
     delete_on_termination = true
