@@ -28,20 +28,36 @@ A bit about this module
 
 ## Providers
 
-No provider.
+| Name | Version |
+|------|---------|
+| aws | n/a |
+| tls | n/a |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| ami\_id | ID of the AMI to use when creating this instance | `string` | n/a | yes |
+| env | Name of the environment the Instance will be in. | `string` | n/a | yes |
+| instance\_type | AWS Instance type, i.e. t3.small. | `string` | n/a | yes |
 | name | Moniker to apply to all resources in the module | `string` | n/a | yes |
+| security\_groups | Security Group IDs to attach to the instance | `list(string)` | n/a | yes |
+| subnet\_id | ID of the subnet in which to create the instance. | `string` | n/a | yes |
+| volume\_size | Size of the attached volume for this instance. | `number` | n/a | yes |
+| volume\_type | Type of storage for the instance attached volume | `string` | n/a | yes |
+| vpc | VPC ID to create the instance in. | `string` | n/a | yes |
+| instance\_ip | Private IP to assign to the instance, if desired | `string` | `null` | no |
 | tags | User-Defined tags | `map(string)` | `{}` | no |
+| userdata\_script | Userdata script to execute when provisioning the instance. | `string` | `null` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| tags\_module | Tags Module in it's entirety |
+| iam\_role\_arn | ARN of the IAM Role generated for this instance |
+| instance\_id | ID of the instance created |
+| instance\_sg\_id | ID of the instance created |
+| private\_ip | private ip assigned to this instance |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
