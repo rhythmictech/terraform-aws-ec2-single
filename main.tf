@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "instance_sts_assume_role" {
 
 resource "aws_iam_role" "instance" {
   count              = var.create ? 1 : 0
-  name_prefix        = "${var.name}-role-"
+  name_prefix        = "${substr(var.name, 0, 26)}-role-"
   assume_role_policy = data.aws_iam_policy_document.instance_sts_assume_role.json
 
   tags = merge(
