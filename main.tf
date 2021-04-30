@@ -1,6 +1,13 @@
-########################################
+locals {
+  allow_ssm        = var.create && var.use_ssm
+  create_key       = var.create && var.use_keypair && local.use_external_key
+  keypair          = local.create_key ? aws_key_pair.instance_root[0].key_name : var.external_keypair
+  use_external_key = var.external_keypair == null ? false : true
+}
+
+##########################################
 # Security Group for instance
-########################################
+##########################################
 
 resource "aws_security_group" "instance" {
   count       = var.create ? 1 : 0
@@ -20,9 +27,9 @@ resource "aws_security_group" "instance" {
   }
 }
 
-########################################
+##########################################
 # Instance IAM role and initial policy setup
-########################################
+##########################################
 
 data "aws_iam_policy_document" "instance_sts_assume_role" {
   statement {
@@ -33,6 +40,10 @@ data "aws_iam_policy_document" "instance_sts_assume_role" {
       identifiers = ["ec2.amazonaws.com"]
     }
   }
+}
+
+data "aws_iam_policy" "ssm_access" {
+  arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_role" "instance" {
@@ -77,24 +88,30 @@ resource "aws_iam_instance_profile" "instance" {
   role        = aws_iam_role.instance[0].name
 }
 
-########################################
+resource "aws_iam_role_policy_attachment" "ssm_access" {
+  count      = local.allow_ssm ? 1 : 0
+  role       = aws_iam_role.instance[0].name
+  policy_arn = data.aws_iam_policy.ssm_access.arn
+}
+
+##########################################
 # Instance root key creation/storage
-########################################
+##########################################
 
 resource "tls_private_key" "instance_root" {
-  count     = var.create ? 1 : 0
+  count     = local.create_key ? 1 : 0
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 resource "aws_key_pair" "instance_root" {
-  count           = var.create ? 1 : 0
+  count           = local.create_key ? 1 : 0
   key_name_prefix = "${var.name}-root-"
   public_key      = tls_private_key.instance_root[0].public_key_openssh
 }
 
 resource "aws_secretsmanager_secret" "instance_root_key" {
-  count       = var.create ? 1 : 0
+  count       = local.create_key ? 1 : 0
   name_prefix = "${var.name}-root-key-"
   description = "ssh key for ec2-user user on ${var.name} server"
 
@@ -107,19 +124,19 @@ resource "aws_secretsmanager_secret" "instance_root_key" {
 }
 
 resource "aws_secretsmanager_secret_version" "instance_root_key_value" {
-  count         = var.create ? 1 : 0
+  count         = local.create_key ? 1 : 0
   secret_id     = aws_secretsmanager_secret.instance_root_key[0].id
   secret_string = tls_private_key.instance_root[0].private_key_pem
 }
-########################################
+##########################################
 # Instance Definition
-########################################
+##########################################
 resource "aws_instance" "instance" {
   count                  = var.create ? 1 : 0
   ami                    = var.ami_id
   iam_instance_profile   = aws_iam_instance_profile.instance[0].id
   instance_type          = var.instance_type
-  key_name               = aws_key_pair.instance_root[0].key_name
+  key_name               = local.keypair
   monitoring             = true
   private_ip             = var.instance_ip != null ? var.instance_ip : null
   subnet_id              = var.subnet_id
@@ -135,7 +152,7 @@ resource "aws_instance" "instance" {
   tags = merge(
     var.tags,
     {
-      "Name" = "${var.name}"
+      "Name" = var.name
     },
   )
 }

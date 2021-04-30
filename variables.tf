@@ -1,6 +1,6 @@
-########################################
+##########################################
 # Variables
-########################################
+##########################################
 variable "ami_id" {
   description = "ID of the AMI to use when creating this instance."
   type        = string
@@ -14,6 +14,12 @@ variable "create" {
 
 variable "env" {
   description = "Name of the environment the Instance will be in."
+  type        = string
+}
+
+variable "external_keypair" {
+  default     = null
+  description = "Name of an external SSH Keypair to associate with this instance. If use_keypair is false and this is left null, no keypair will be associated with the instance."
   type        = string
 }
 
@@ -47,6 +53,18 @@ variable "tags" {
   default     = {}
   description = "User-Defined tags."
   type        = map(string)
+}
+
+variable "use_keypair" {
+  default     = false
+  description = "Whether or not to associate an SSH Keypair with this instance. If this is false and no external_keypair is defined, no key will be associated with the instance."
+  type        = bool
+}
+
+variable "use_ssm" {
+  default     = false
+  description = "Whether or not to associate an IAM managed policy to allow SSM access to the instance."
+  type        = bool
 }
 
 variable "userdata_script" {

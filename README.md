@@ -24,14 +24,16 @@ A bit about this module
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.14 |
+| terraform | >= 0.12.26 |
+| aws | >= 2.45.0, < 4.0.0 |
+| tls | >= 3.1.0, < 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | n/a |
-| tls | n/a |
+| aws | >= 2.45.0, < 4.0.0 |
+| tls | >= 3.1.0, < 4.0.0 |
 
 ## Inputs
 
@@ -47,8 +49,11 @@ A bit about this module
 | volume\_type | Type of storage for the instance attached volume. | `string` | n/a | yes |
 | vpc | VPC ID to create the instance in. | `string` | n/a | yes |
 | create | Whether or not this instance should be created. Unfortunately needed for TF < 0.13. | `bool` | `true` | no |
+| external\_keypair | Name of an external SSH Keypair to associate with this instance. If use\_keypair is false and this is left null, no keypair will be associated with the instance. | `string` | `null` | no |
 | instance\_ip | Private IP to assign to the instance, if desired. | `string` | `null` | no |
 | tags | User-Defined tags. | `map(string)` | `{}` | no |
+| use\_keypair | Whether or not to associate an SSH Keypair with this instance. If this is false and no external\_keypair is defined, no key will be associated with the instance. | `bool` | `false` | no |
+| use\_ssm | Whether or not to associate an IAM managed policy to allow SSM access to the instance. | `bool` | `false` | no |
 | userdata\_script | Userdata script to execute when provisioning the instance. | `string` | `null` | no |
 
 ## Outputs
