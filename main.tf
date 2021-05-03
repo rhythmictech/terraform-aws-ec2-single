@@ -1,8 +1,7 @@
 locals {
   allow_ssm        = var.create && var.use_ssm
-  create_key       = var.create && var.use_keypair && local.use_external_key
+  create_key       = var.create && var.create_keypair
   keypair          = local.create_key ? aws_key_pair.instance_root[0].key_name : var.external_keypair
-  use_external_key = var.external_keypair == null ? false : true
 }
 
 ##########################################
