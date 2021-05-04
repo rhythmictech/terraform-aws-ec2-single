@@ -41,16 +41,37 @@ data "aws_iam_policy_document" "instance_sts_assume_role" {
   }
 }
 
-data "aws_iam_policy_document" "ec2tags" {
-  statement {
-    sid       = "TagAccess"
-    actions   = ["ec2:DescribeTags"]
-    effect    = "Allow"
-    resources = ["*"]
+resource "aws_iam_role" "instance" {
+  count              = var.create ? 1 : 0
+  name_prefix        = "${substr(var.name, 0, 26)}-role-"
+  assume_role_policy = data.aws_iam_policy_document.instance_sts_assume_role.json
+
+  tags = merge(
+    var.tags,
+    {
+      "Name" = "${var.name}-role"
+    },
+  )
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
-data "aws_iam_policy_document" "ssm" {
+resource "aws_iam_role_policy" "instance" {
+  count       = var.create ? 1 : 0
+  name_prefix = "${var.name}-"
+  role        = aws_iam_role.instance[0].id
+  policy      = data.aws_iam_policy_document.instance_tags.json
+}
+
+resource "aws_iam_instance_profile" "instance" {
+  count       = var.create ? 1 : 0
+  name_prefix = "${var.name}-"
+  role        = aws_iam_role.instance[0].name
+}
+
+data "aws_iam_policy_document" "ssm_access" {
 
   statement {
     sid       = "ManageWithSSM"
@@ -91,21 +112,16 @@ data "aws_iam_policy_document" "ssm" {
   }
 }
 
-resource "aws_iam_role" "instance" {
-  count              = var.create ? 1 : 0
-  name_prefix        = "${substr(var.name, 0, 26)}-role-"
-  assume_role_policy = data.aws_iam_policy_document.instance_sts_assume_role.json
+resource "aws_iam_policy" "ssm_access" {
+  count       = local.allow_ssm ? 1 : 0
+  name_prefix = "${var.name}-ssm-access-"
+  policy      = data.aws_iam_policy_document.ssm_access.json
+}
 
-  tags = merge(
-    var.tags,
-    {
-      "Name" = "${var.name}-role"
-    },
-  )
-
-  lifecycle {
-    create_before_destroy = true
-  }
+resource "aws_iam_role_policy_attachment" "ssm_access" {
+  count      = local.allow_ssm ? 1 : 0
+  role       = aws_iam_role.instance[0].name
+  policy_arn = aws_iam_policy.ssm_access[0].arn
 }
 
 data "aws_iam_policy_document" "instance_tags" {
@@ -120,29 +136,16 @@ data "aws_iam_policy_document" "instance_tags" {
   }
 }
 
-resource "aws_iam_role_policy" "instance" {
+resource "aws_iam_policy" "instance_tags" {
   count       = var.create ? 1 : 0
-  name_prefix = "${var.name}-"
-  role        = aws_iam_role.instance[0].id
+  name_prefix = "${var.name}-instance-tags-"
   policy      = data.aws_iam_policy_document.instance_tags.json
 }
 
-resource "aws_iam_instance_profile" "instance" {
-  count       = var.create ? 1 : 0
-  name_prefix = "${var.name}-"
-  role        = aws_iam_role.instance[0].name
-}
-
-resource "aws_iam_role_policy_attachment" "ssm_access" {
-  count      = local.allow_ssm ? 1 : 0
-  role       = aws_iam_role.instance[0].name
-  policy_arn = data.aws_iam_policy.ssm.arn
-}
-
-resource "aws_iam_role_policy_attachment" "ec2tags" {
+resource "aws_iam_role_policy_attachment" "instance_tags" {
   count      = var.create ? 1 : 0
   role       = aws_iam_role.instance[0].name
-  policy_arn = data.aws_iam_policy.ec2tags.arn
+  policy_arn = aws_iam_policy.instance_tags[0].arn
 }
 
 ##########################################
