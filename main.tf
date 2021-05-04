@@ -41,10 +41,6 @@ data "aws_iam_policy_document" "instance_sts_assume_role" {
   }
 }
 
-data "aws_iam_policy" "ssm_access" {
-  arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
 resource "aws_iam_role" "instance" {
   count              = var.create ? 1 : 0
   name_prefix        = "${substr(var.name, 0, 26)}-role-"
@@ -62,18 +58,6 @@ resource "aws_iam_role" "instance" {
   }
 }
 
-data "aws_iam_policy_document" "instance_tags" {
-  statement {
-    actions = [
-      "ec2:DescribeTags",
-    ]
-
-    resources = [
-      "*",
-    ]
-  }
-}
-
 resource "aws_iam_role_policy" "instance" {
   count       = var.create ? 1 : 0
   name_prefix = "${var.name}-"
@@ -87,10 +71,81 @@ resource "aws_iam_instance_profile" "instance" {
   role        = aws_iam_role.instance[0].name
 }
 
+data "aws_iam_policy_document" "ssm_access" {
+
+  statement {
+    sid       = "ManageWithSSM"
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "ec2messages:AcknowledgeMessage",
+      "ec2messages:DeleteMessage",
+      "ec2messages:FailMessage",
+      "ec2messages:GetEndpoint",
+      "ec2messages:GetMessages",
+      "ec2messages:SendReply",
+      "ssm:DescribeAssociation",
+      "ssm:GetDeployablePatchSnapshotForInstance",
+      "ssm:GetDocument",
+      "ssm:ListAssociations",
+      "ssm:ListInstanceAssociations",
+      "ssm:PutInventory",
+      "ssm:UpdateAssociationStatus",
+      "ssm:UpdateInstanceAssociationStatus",
+      "ssm:UpdateInstanceInformation"
+    ]
+  }
+
+  statement {
+    sid       = "SessionManagerAccess"
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "s3:GetEncryptionConfiguration",
+      "ssmmessages:CreateControlChannel",
+      "ssmmessages:CreateDataChannel",
+      "ssmmessages:OpenControlChannel",
+      "ssmmessages:OpenDataChannel"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ssm_access" {
+  count       = local.allow_ssm ? 1 : 0
+  name_prefix = "${var.name}-ssm-access-"
+  policy      = data.aws_iam_policy_document.ssm_access.json
+}
+
 resource "aws_iam_role_policy_attachment" "ssm_access" {
   count      = local.allow_ssm ? 1 : 0
   role       = aws_iam_role.instance[0].name
-  policy_arn = data.aws_iam_policy.ssm_access.arn
+  policy_arn = aws_iam_policy.ssm_access[0].arn
+}
+
+data "aws_iam_policy_document" "instance_tags" {
+  statement {
+    actions = [
+      "ec2:DescribeTags",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "instance_tags" {
+  count       = var.create ? 1 : 0
+  name_prefix = "${var.name}-instance-tags-"
+  policy      = data.aws_iam_policy_document.instance_tags.json
+}
+
+resource "aws_iam_role_policy_attachment" "instance_tags" {
+  count      = var.create ? 1 : 0
+  role       = aws_iam_role.instance[0].name
+  policy_arn = aws_iam_policy.instance_tags[0].arn
 }
 
 ##########################################
