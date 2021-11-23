@@ -1,7 +1,9 @@
 locals {
-  allow_ssm  = var.create && var.use_ssm
-  create_key = var.create && var.create_keypair
-  keypair    = local.create_key ? aws_key_pair.instance_root[0].key_name : var.external_keypair
+  create_ssm  = var.create && var.create_ssm
+  create_key  = var.create && var.create_keypair
+  create_sg   = var.create && var.create_sg
+  instance_sg = try(aws_security_group.instance[0].id, "")
+  keypair     = local.create_key ? aws_key_pair.instance_root[0].key_name : var.external_keypair
 }
 
 ##########################################
@@ -9,7 +11,7 @@ locals {
 ##########################################
 
 resource "aws_security_group" "instance" {
-  count       = var.create ? 1 : 0
+  count       = local.create_sg ? 1 : 0
   name_prefix = "${var.env}-${var.name}-"
   description = "Security group attached to the ${var.env}-${var.name} instance."
   vpc_id      = var.vpc
@@ -113,15 +115,21 @@ data "aws_iam_policy_document" "ssm_access" {
 }
 
 resource "aws_iam_policy" "ssm_access" {
-  count       = local.allow_ssm ? 1 : 0
+  count       = local.create_ssm ? 1 : 0
   name_prefix = "${var.name}-ssm-access-"
   policy      = data.aws_iam_policy_document.ssm_access.json
 }
 
 resource "aws_iam_role_policy_attachment" "ssm_access" {
-  count      = local.allow_ssm ? 1 : 0
+  count      = local.create_ssm ? 1 : 0
   role       = aws_iam_role.instance[0].name
   policy_arn = aws_iam_policy.ssm_access[0].arn
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_access_arn" {
+  count      = var.ssm_access_arn != "" ? 1 : 0
+  role       = aws_iam_role.instance[0].name
+  policy_arn = var.ssm_access_arn
 }
 
 data "aws_iam_policy_document" "instance_tags" {
@@ -195,10 +203,11 @@ resource "aws_instance" "instance" {
   private_ip             = var.instance_ip != null ? var.instance_ip : null
   subnet_id              = var.subnet_id
   user_data              = var.userdata_script
-  vpc_security_group_ids = concat([aws_security_group.instance[0].id], var.security_groups)
+  vpc_security_group_ids = compact(concat([local.instance_sg], var.security_groups))
 
   root_block_device {
     delete_on_termination = true
+    encrypted             = true
     volume_size           = var.volume_size
     volume_type           = var.volume_type
   }
