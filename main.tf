@@ -219,3 +219,15 @@ resource "aws_instance" "instance" {
     },
   )
 }
+
+##########################################
+# Route53 record
+##########################################
+resource "aws_route53_record" "route53_record" {
+  count = var.route53_record != "" ? 1 : 0
+  zone_id = var.route53_zone_id
+  name    = var.route53_record
+  type    = "A"
+  ttl     = "300"
+  records = [aws_instance.instance[0].private_ip]
+}

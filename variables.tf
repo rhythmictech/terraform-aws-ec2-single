@@ -73,6 +73,16 @@ variable "create_ssm" {
   type        = bool
 }
 
+variable "route53_record" {
+  description = "Route53 record to point to EC2 instance."
+  type        = string
+}
+
+variable "route53_zone_id" {
+  description = "Route53 zone ID for the route53_record."
+  type        = string
+}
+
 variable "ssm_access_arn" {
   default     = ""
   description = "Whether or not to associate a pre-created IAM managed policy to allow SSM access to the instance."
