@@ -61,10 +61,32 @@ variable "create_keypair" {
   type        = bool
 }
 
-variable "use_ssm" {
+variable "create_sg" {
   default     = true
-  description = "Whether or not to associate an IAM managed policy to allow SSM access to the instance."
+  description = "Whether or not to create and associate a security group for the instance. "
   type        = bool
+}
+
+variable "create_ssm" {
+  default     = true
+  description = "Whether or not to create and associate an IAM managed policy to allow SSM access to the instance."
+  type        = bool
+}
+
+variable "route53_record" {
+  description = "Route53 record to point to EC2 instance."
+  type        = string
+}
+
+variable "route53_zone_id" {
+  description = "Route53 zone ID for the route53_record."
+  type        = string
+}
+
+variable "ssm_access_arn" {
+  default     = ""
+  description = "Whether or not to associate a pre-created IAM managed policy to allow SSM access to the instance."
+  type        = string
 }
 
 variable "userdata_script" {

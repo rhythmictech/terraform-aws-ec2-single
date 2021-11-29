@@ -5,7 +5,7 @@ output "instance_id" {
 
 output "instance_sg_id" {
   description = "ID of the instance created"
-  value       = aws_security_group.instance[0].id
+  value       = length(aws_security_group.instance[*].id) > 0 ? aws_security_group.instance[0].id : null
 }
 
 output "private_ip" {
