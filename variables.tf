@@ -95,6 +95,12 @@ variable "userdata_script" {
   default     = null
 }
 
+variable "volume_iops" {
+  default     = null
+  description = "IOPS to allocate to the instance's base drive. Only applicable when volume_type is io1, io2 or gp3."
+  type        = number
+}
+
 variable "volume_size" {
   description = "Size of the attached volume for this instance."
   type        = number
@@ -103,6 +109,12 @@ variable "volume_size" {
 variable "volume_type" {
   description = "Type of storage for the instance attached volume."
   type        = string
+}
+
+variable "volume_throughput" {
+  default     = null
+  description = "Value in MiB/s for throughput on instance volume. Only applicable when volume_type is gp3."
+  type        = number
 }
 
 variable "vpc" {
