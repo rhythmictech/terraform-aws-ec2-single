@@ -208,6 +208,8 @@ resource "aws_instance" "instance" {
   root_block_device {
     delete_on_termination = true
     encrypted             = true
+    iops                  = var.volume_iops
+    throughput            = var.volume_throughput
     volume_size           = var.volume_size
     volume_type           = var.volume_type
   }
