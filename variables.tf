@@ -12,6 +12,12 @@ variable "create" {
   default     = true
 }
 
+variable "ebs_block_device" {
+  description = "Additional EBS block devices to attach to the instance"
+  type        = list(map(string))
+  default     = []
+}
+
 variable "env" {
   description = "Name of the environment the Instance will be in."
   type        = string

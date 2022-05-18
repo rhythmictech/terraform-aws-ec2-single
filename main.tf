@@ -205,6 +205,28 @@ resource "aws_instance" "instance" {
   user_data              = var.userdata_script
   vpc_security_group_ids = compact(concat([local.instance_sg], var.security_groups))
 
+  dynamic "ebs_block_device" {
+    for_each = var.ebs_block_device
+    content {
+      delete_on_termination = lookup(ebs_block_device.value, "delete_on_termination", null)
+      device_name           = ebs_block_device.value.device_name
+      encrypted             = lookup(ebs_block_device.value, "encrypted", null)
+      iops                  = lookup(ebs_block_device.value, "iops", null)
+      kms_key_id            = lookup(ebs_block_device.value, "kms_key_id", null)
+      snapshot_id           = lookup(ebs_block_device.value, "snapshot_id", null)
+      volume_size           = lookup(ebs_block_device.value, "volume_size", null)
+      volume_type           = lookup(ebs_block_device.value, "volume_type", null)
+      throughput            = lookup(ebs_block_device.value, "throughput", null)
+
+      tags = merge(
+        var.tags,
+        {
+          "Name" = var.name
+        }
+      )
+    }
+  }
+
   root_block_device {
     delete_on_termination = true
     encrypted             = true
@@ -212,6 +234,13 @@ resource "aws_instance" "instance" {
     throughput            = var.volume_throughput
     volume_size           = var.volume_size
     volume_type           = var.volume_type
+
+    tags = merge(
+      var.tags,
+      {
+        "Name" = var.name
+      }
+    )
   }
 
   tags = merge(
@@ -220,6 +249,10 @@ resource "aws_instance" "instance" {
       "Name" = var.name
     },
   )
+
+  lifecycle {
+    ignore_changes = [ebs_block_device]
+  }
 }
 
 ##########################################
