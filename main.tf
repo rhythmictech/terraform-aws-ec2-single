@@ -249,6 +249,10 @@ resource "aws_instance" "instance" {
       "Name" = var.name
     },
   )
+
+  lifecycle {
+    ignore_changes = [ebs_block_device]
+  }
 }
 
 ##########################################
