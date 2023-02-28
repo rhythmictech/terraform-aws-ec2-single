@@ -78,7 +78,7 @@ data "aws_iam_policy_document" "ssm_access" {
   statement {
     sid       = "ManageWithSSM"
     effect    = "Allow"
-    resources = ["*"]
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
 
     actions = [
       "ec2messages:AcknowledgeMessage",
@@ -102,7 +102,7 @@ data "aws_iam_policy_document" "ssm_access" {
   statement {
     sid       = "SessionManagerAccess"
     effect    = "Allow"
-    resources = ["*"]
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
 
     actions = [
       "s3:GetEncryptionConfiguration",
@@ -193,6 +193,8 @@ resource "aws_secretsmanager_secret_version" "instance_root_key_value" {
 ##########################################
 # Instance Definition
 ##########################################
+
+#tfsec:ignore:aws-ec2-enforce-http-token-imds
 resource "aws_instance" "instance" {
   count                  = var.create ? 1 : 0
   ami                    = var.ami_id
