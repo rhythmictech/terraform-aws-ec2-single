@@ -233,6 +233,7 @@ resource "aws_instance" "instance" {
     delete_on_termination = true
     encrypted             = true
     iops                  = var.volume_iops
+    kms_key_id            = var.volume_kms_key_id
     throughput            = var.volume_throughput
     volume_size           = var.volume_size
     volume_type           = var.volume_type

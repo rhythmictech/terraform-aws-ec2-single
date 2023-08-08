@@ -80,11 +80,13 @@ variable "create_ssm" {
 }
 
 variable "route53_record" {
+  default     = ""
   description = "Route53 record to point to EC2 instance."
   type        = string
 }
 
 variable "route53_zone_id" {
+  default     = ""
   description = "Route53 zone ID for the route53_record."
   type        = string
 }
@@ -105,6 +107,12 @@ variable "volume_iops" {
   default     = null
   description = "IOPS to allocate to the instance's base drive. Only applicable when volume_type is io1, io2 or gp3."
   type        = number
+}
+
+variable "volume_kms_key_id" {
+  default     = null
+  description = "ID of the KMS Key to attach to the Root EBS volume"
+  type        = string
 }
 
 variable "volume_size" {

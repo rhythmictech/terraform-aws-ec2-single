@@ -56,8 +56,8 @@ module "ec2-pet" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 2.45.0 |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | >= 3.1.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.38.0 |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | 3.1.0 |
 
 ## Modules
 
@@ -101,14 +101,15 @@ No modules.
 | <a name="input_instance_ip"></a> [instance\_ip](#input\_instance\_ip) | Private IP to assign to the instance, if desired. | `string` | `null` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | AWS Instance type, i.e. t3.small. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Moniker to apply to all resources in the module. | `string` | n/a | yes |
-| <a name="input_route53_record"></a> [route53\_record](#input\_route53\_record) | Route53 record to point to EC2 instance. | `string` | n/a | yes |
-| <a name="input_route53_zone_id"></a> [route53\_zone\_id](#input\_route53\_zone\_id) | Route53 zone ID for the route53\_record. | `string` | n/a | yes |
+| <a name="input_route53_record"></a> [route53\_record](#input\_route53\_record) | Route53 record to point to EC2 instance. | `string` | `""` | no |
+| <a name="input_route53_zone_id"></a> [route53\_zone\_id](#input\_route53\_zone\_id) | Route53 zone ID for the route53\_record. | `string` | `""` | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | Security Group IDs to attach to the instance. | `list(string)` | n/a | yes |
 | <a name="input_ssm_access_arn"></a> [ssm\_access\_arn](#input\_ssm\_access\_arn) | Whether or not to associate a pre-created IAM managed policy to allow SSM access to the instance. | `string` | `""` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | ID of the subnet in which to create the instance. | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | User-Defined tags. | `map(string)` | `{}` | no |
 | <a name="input_userdata_script"></a> [userdata\_script](#input\_userdata\_script) | Userdata script to execute when provisioning the instance. | `string` | `null` | no |
 | <a name="input_volume_iops"></a> [volume\_iops](#input\_volume\_iops) | IOPS to allocate to the instance's base drive. Only applicable when volume\_type is io1, io2 or gp3. | `number` | `null` | no |
+| <a name="input_volume_kms_key_id"></a> [volume\_kms\_key\_id](#input\_volume\_kms\_key\_id) | ID of the KMS Key to attach to the Root EBS volume | `string` | `null` | no |
 | <a name="input_volume_size"></a> [volume\_size](#input\_volume\_size) | Size of the attached volume for this instance. | `number` | n/a | yes |
 | <a name="input_volume_throughput"></a> [volume\_throughput](#input\_volume\_throughput) | Value in MiB/s for throughput on instance volume. Only applicable when volume\_type is gp3. | `number` | `null` | no |
 | <a name="input_volume_type"></a> [volume\_type](#input\_volume\_type) | Type of storage for the instance attached volume. | `string` | n/a | yes |
