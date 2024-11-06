@@ -254,7 +254,10 @@ resource "aws_instance" "instance" {
   )
 
   lifecycle {
-    ignore_changes = [ebs_block_device]
+    ignore_changes = [
+      ebs_block_device,
+      ami_id
+    ]
   }
 }
 
