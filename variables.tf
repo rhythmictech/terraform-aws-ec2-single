@@ -116,11 +116,13 @@ variable "volume_kms_key_id" {
 }
 
 variable "volume_size" {
+  default     = null
   description = "Size of the attached volume for this instance."
   type        = number
 }
 
 variable "volume_type" {
+  default     = null
   description = "Type of storage for the instance attached volume."
   type        = string
 }
