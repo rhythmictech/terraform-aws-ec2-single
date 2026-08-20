@@ -35,6 +35,11 @@ variable "instance_ip" {
   default     = null
 }
 
+variable "instance_tags" {
+  default     = {}
+  description = "User-Defined tags to apply only to the instance."
+  type        = map(string)
+}
 variable "instance_type" {
   description = "AWS Instance type, i.e. t3.small."
   type        = string

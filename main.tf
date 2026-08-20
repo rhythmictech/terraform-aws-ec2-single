@@ -248,6 +248,7 @@ resource "aws_instance" "instance" {
 
   tags = merge(
     var.tags,
+    var.instance_tags,
     {
       "Name" = var.name
     },
